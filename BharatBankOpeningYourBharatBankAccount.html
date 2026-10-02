@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev PG Bharat Bank</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --text: #163047;
+            --muted: #6a7f92;
+            --brand: #0f5d9b;
+            --brand-dark: #0c4a7b;
+            --border: #d7e2ee;
+            --ok: #0f7a6e;
+            --error: #b42318;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #eef4fb 0%, #f7fafc 100%);
+            color: var(--text);
+        }
+
+        .shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+        }
+
+        .hint {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 9px 10px;
+            color: var(--text);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 76px;
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        button {
+            margin-top: 14px;
+            padding: 11px 12px;
+            border: 0;
+            background: var(--brand);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--brand-dark);
+        }
+
+        .preview-title {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+
+        iframe {
+            width: 100%;
+            min-height: 760px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .status {
+            margin-top: 10px;
+            font-size: 13px;
+            min-height: 18px;
+            color: var(--muted);
+        }
+
+        .status.ok {
+            color: var(--ok);
+        }
+
+        .status.error {
+            color: var(--error);
+        }
+
+        @media (max-width: 960px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            iframe {
+                min-height: 640px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="card">
+            <h1>Bharat Bank - Consent Frame</h1>
+            <p class="hint">Set the consent parameters, load the iframe, and submit the form directly inside the frame.</p>
+
+            <label for="userId">User Name</label>
+            <select id="userId">
+                <option value="11111111-1111-1111-1111-111111111111">User 1</option>
+                <!-- <option value="22222222-2222-2222-2222-222222222222">User 2</option> -->
+            </select>
+
+            <label for="clientId">Client ID</label>
+            <input type="text" id="clientId" value="2">
+            <!-- <select id="clientId">
+                <option value="2">2</option>
+            </select> -->
+
+            <label for="formGuid">Form GUID</label>
+            <input type="text" id="formGuid" value="0610f16a-53bc-4837-8742-3222bdfced08">
+            <!-- <select id="formGuid">
+                <option value="0610f16a-53bc-4837-8742-3222bdfced08">Opening your Bharat Bank account</option>  
+            </select> -->
+
+            <label for="languageCode">Language Code</label>
+            <select id="languageCode">
+                <option value="EN">EN</option>
+            </select>
+
+            <label for="formType">Form Type</label>
+            <select id="formType">
+                <option value="consent">consent</option>
+            </select>
+
+            <label for="consentHost">Consent Host</label>
+            <input type="text" id="consentHost" value="https://dev-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io"/>
+            <!-- <select id="consentHost">
+                <option value="https://dev-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io">dev-privacyglobal-consent-mvc</option>
+            </select> -->
+
+            <button id="loadFrameBtn" type="button">Load Form In Iframe</button>
+
+            <label for="iframeUrl">Generated Iframe URL</label>
+            <textarea id="iframeUrl" readonly></textarea>
+
+            <p id="statusText" class="status"></p>
+        </section>
+
+        <section class="card">
+            <h2 class="preview-title">Consent Form Preview</h2>
+            <iframe id="consentFrame" title="Bharat Bank Consent Form" loading="lazy" data-src-template="{consentHost}/ConsentForm/ConsentForm?clientId={clientId}&amp;formGuid={formGuid}&amp;languageCode={languageCode}&amp;formType={formType}&amp;userId={userId}"></iframe>
+        </section>
+    </div>
+
+    <script>
+        (function () {
+            const ids = {
+                consentHost: document.getElementById("consentHost"),
+                userId: document.getElementById("userId"),
+                clientId: document.getElementById("clientId"),
+                formGuid: document.getElementById("formGuid"),
+                languageCode: document.getElementById("languageCode"),
+                formType: document.getElementById("formType"),
+                iframeUrl: document.getElementById("iframeUrl"),
+                consentFrame: document.getElementById("consentFrame"),
+                statusText: document.getElementById("statusText"),
+                loadFrameBtn: document.getElementById("loadFrameBtn")
+            };
+
+            function setStatus(message, type) {
+                ids.statusText.className = "status" + (type ? " " + type : "");
+                ids.statusText.textContent = message;
+            }
+
+            function buildFrameUrl() {
+                const consentHost = (ids.consentHost.value || "").trim().replace(/\/+$/, "");
+                const clientId = (ids.clientId.value || "").trim();
+                const formGuid = (ids.formGuid.value || "").trim();
+                const languageCode = (ids.languageCode.value || "").trim();
+                const formType = (ids.formType.value || "").trim();
+                const userId = (ids.userId.value || "").trim();
+
+                if (!consentHost || !clientId || !formGuid || !languageCode || !formType || !userId) {
+                    throw new Error("Please provide all required parameters.");
+                }
+
+                const template = ids.consentFrame.dataset.srcTemplate || "";
+                return template
+                    .replace("{consentHost}", consentHost)
+                    .replace("{clientId}", encodeURIComponent(clientId))
+                    .replace("{formGuid}", encodeURIComponent(formGuid))
+                    .replace("{languageCode}", encodeURIComponent(languageCode))
+                    .replace("{formType}", encodeURIComponent(formType))
+                    .replace("{userId}", encodeURIComponent(userId))
+                    .replace(/&amp;/g, "&");
+            }
+
+            function refreshUrl() {
+                try {
+                    ids.iframeUrl.value = buildFrameUrl();
+                    setStatus("Iframe URL is ready.", "ok");
+                } catch (error) {
+                    ids.iframeUrl.value = "";
+                    setStatus(error.message, "error");
+                }
+            }
+
+            function loadFrame() {
+                try {
+                    const url = buildFrameUrl();
+                    ids.iframeUrl.value = url;
+                    ids.consentFrame.src = url;
+                    setStatus("Consent form loaded. Submit the form directly inside iframe.", "ok");
+                } catch (error) {
+                    setStatus(error.message, "error");
+                }
+            }
+
+            ids.loadFrameBtn.addEventListener("click", loadFrame);
+
+            ["consentHost", "userId", "clientId", "formGuid", "languageCode", "formType"].forEach(function (id) {
+                ids[id].addEventListener("input", refreshUrl);
+                ids[id].addEventListener("change", refreshUrl);
+            });
+
+            refreshUrl();
+            loadFrame();
+        })();
+    </script>
+</body>
+</html>

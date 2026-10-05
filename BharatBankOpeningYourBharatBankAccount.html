@@ -149,7 +149,10 @@
             <label for="userId">User Name</label>
             <select id="userId">
                 <option value="11111111-1111-1111-1111-111111111111">User 1</option>
-                <!-- <option value="22222222-2222-2222-2222-222222222222">User 2</option> -->
+                <option value="22222222-2222-2222-2222-222222222222">User 2</option>
+                <option value="33333333-3333-3333-3333-333333333333">User 3</option>
+                <option value="44444444-4444-4444-4444-444444444444">User 4</option>
+                <option value="55555555-5555-5555-5555-555555555555">User 5</option>
             </select>
 
             <label for="clientId">Client ID</label>
@@ -171,19 +174,30 @@
 
             <label for="formType">Form Type</label>
             <select id="formType">
-                <option value="consent">consent</option>
+                <option value="consent" selected>consent</option>
+                <option value="Consent-Notice">Consent-Notice</option>
+                <option value="Withdrawal">Withdrawal</option>
+                <option value="Withdrawal-Notice">Withdrawal-Notice</option>
             </select>
 
             <label for="consentHost">Consent Host</label>
-            <input type="text" id="consentHost" value="https://dev-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io"/>
-            <!-- <select id="consentHost">
+            <!-- <input type="text" id="consentHost" value="https://qa-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io"/> -->
+            <select id="consenthost">
                 <option value="https://dev-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io">dev-privacyglobal-consent-mvc</option>
-            </select> -->
+                <option value="https://qa-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io">qa-privacyglobal-consent-mvc</option>
+                <option value="https://uat-privacyglobal-consent-mvc.calmcoast-fe1bc6e3.eastus.azurecontainerapps.io">uat-privacyglobal-consent-mvc</option>
+            </select>
 
             <button id="loadFrameBtn" type="button">Load Form In Iframe</button>
 
             <label for="iframeUrl">Generated Iframe URL</label>
-            <textarea id="iframeUrl" readonly></textarea>
+            <textarea id="iframeUrl"></textarea>
+
+            <button id="loadModifyUrlBtn" type="button">Generated Modify URL</button>
+            <label for="modifyUrl">Generated Modify URL</label>
+            <textarea id="modifyUrl"></textarea>
+
+            <button id="loadModifyFrameBtn" type="button">Load Modify Form In Iframe</button>
 
             <p id="statusText" class="status"></p>
         </section>
@@ -204,9 +218,12 @@
                 languageCode: document.getElementById("languageCode"),
                 formType: document.getElementById("formType"),
                 iframeUrl: document.getElementById("iframeUrl"),
+                modifyUrl: document.getElementById("modifyUrl"),
                 consentFrame: document.getElementById("consentFrame"),
                 statusText: document.getElementById("statusText"),
-                loadFrameBtn: document.getElementById("loadFrameBtn")
+                loadFrameBtn: document.getElementById("loadFrameBtn"),
+                loadModifyUrlBtn: document.getElementById("loadModifyUrlBtn"),
+                loadModifyFrameBtn: document.getElementById("loadModifyFrameBtn")
             };
 
             function setStatus(message, type) {
@@ -258,7 +275,36 @@
                 }
             }
 
+            function generateModifyUrl() {
+                try {
+                    const iframeUrlValue = ids.iframeUrl.value;
+                    if (!iframeUrlValue) {
+                        throw new Error("Please generate Iframe URL first.");
+                    }
+                    ids.modifyUrl.value = iframeUrlValue;
+                    setStatus("Modify URL generated successfully.", "ok");
+                } catch (error) {
+                    ids.modifyUrl.value = "";
+                    setStatus(error.message, "error");
+                }
+            }
+
+            function loadModifyFrame() {
+                try {
+                    const modifyUrl = ids.modifyUrl.value;
+                    if (!modifyUrl) {
+                        throw new Error("Please generate Modify URL first.");
+                    }
+                    ids.consentFrame.src = modifyUrl;
+                    setStatus("Modify form loaded. Submit the form directly inside iframe.", "ok");
+                } catch (error) {
+                    setStatus(error.message, "error");
+                }
+            }
+
             ids.loadFrameBtn.addEventListener("click", loadFrame);
+            ids.loadModifyUrlBtn.addEventListener("click", generateModifyUrl);
+            ids.loadModifyFrameBtn.addEventListener("click", loadModifyFrame);
 
             ["consentHost", "userId", "clientId", "formGuid", "languageCode", "formType"].forEach(function (id) {
                 ids[id].addEventListener("input", refreshUrl);
